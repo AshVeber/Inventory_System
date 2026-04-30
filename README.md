@@ -11,4 +11,4 @@ In vscode: ctrl+shift+B
 
 # Plans
 - write "Add item"
-- write isNum() function
+  
