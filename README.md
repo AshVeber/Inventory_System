@@ -10,5 +10,5 @@ In vscode: ctrl+shift+B
 # What does it do
 
 # Plans
-- write "Add item"
+- improve "Add item"
   
