@@ -27,9 +27,40 @@ void Menu() {
         std::cout << nums[i] << ". " << menu[i] << std::endl;
     }
 }
-void showitem(std::vector<std::string>& items) {
+void showitem(const std::vector<std::string>& items) {
     for(std::string item : items) {
         std::cout << item << "\n";
+    }
+}
+std::vector<Item> shopitems = {{"Axe", 10, 3}, {"Pickaxe", 5, 4}, {"Hoe", 11, 1}, {"Sword", 20, 5}, {"Shovel", 31, 2}};
+void itemshop() {
+    std::cout << "---------------\n   ITEM SHOP\n---------------" << std::endl;
+    for(size_t i = 0; i < shopitems.size(); ++i) {
+        std::cout << i+1 << ") Name: " << shopitems[i].name << " | Quantity: " << shopitems[i].quantity << " | Power: " << shopitems[i].power << std::endl;
+    }
+}
+void additem(std::vector<std::string>& items) {
+    std::string input;
+
+    while(true) {
+        itemshop();
+        std::cout << "What item do you want to add?" << std::endl;
+        std::cout << ">> ";
+        std::cin >> input;
+        if(isNumber(input)) {
+            int iinput = stoi(input);
+            if(iinput >= 1 && iinput <= (int)shopitems.size()) {
+                items.push_back(shopitems[iinput - 1].name);
+                std::cout << "Item added." << std::endl;
+                break;
+            }else {
+                std::cout << "Enter the valid number." << std::endl;
+                continue;
+            }
+        }else {
+            std::cout << "Enter the number please." << std::endl;
+            continue;
+        }
     }
 }
 
@@ -51,7 +82,7 @@ int main() {
                 }
             }else
             if(iinput == 2) {
-
+                additem(items);
             }else
             if(iinput == 3) {
 
@@ -65,7 +96,7 @@ int main() {
                 std::cout << "Enter the valid number." << std::endl;
                 continue;
             }
-        } else {
+        }else {
             std::cout << "Enter the number please." << std::endl;
             continue;
         }
