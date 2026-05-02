@@ -10,5 +10,6 @@ In vscode: ctrl+shift+B
 # What does it do
 
 # Plans
-- improve "Add item"
+- done with shopitems
+- improve removeitem
   
