@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 struct Item {
     std::string name;
@@ -20,17 +21,23 @@ bool isNumber(const std::string& s) {
     return true;
 }
 void Menu() {
-    std::vector<std::string> menu = {"Show item", "Add item", "Remove item", "Use item", "Exit"};
+    std::vector<std::string> menu = {"Show item", "Item shop", "Remove item", "Use item", "Exit"};
     std::vector<int> nums = {1, 2, 3, 4, 5};
 
     for(size_t i = 0; i < nums.size(); ++i) {
         std::cout << nums[i] << ". " << menu[i] << std::endl;
     }
 }
-void showitem(const std::vector<std::string>& items) {
-    for(std::string item : items) {
-        std::cout << item << "\n";
+void showitem(const std::vector<Item>& items) {
+    std::cout << "-*-*-*-*-*-*-*-" << std::endl;
+    for(size_t i = 0; i < items.size(); ++i) {
+        if(items[i].power == 0) {
+            std::cout << i+1 << ") Item:" << items[i].name << " Quantity:" << items[i].quantity << " Power:" << items[i].power << " |used| " << std::endl;
+        }else {
+            std::cout << i+1 << ") Item:" << items[i].name << " Quantity:" << items[i].quantity << " Power:" << items[i].power << " |    | " << std::endl;
+        }
     }
+    std::cout << "*-*-*-*-*-*-*-*" << std::endl;
 }
 std::vector<Item> shopitems = {{"Axe", 10, 3}, {"Pickaxe", 5, 4}, {"Hoe", 11, 1}, {"Sword", 20, 5}, {"Shovel", 31, 2}};
 void itemshop() {
@@ -39,7 +46,33 @@ void itemshop() {
         std::cout << i+1 << ") Name: " << shopitems[i].name << " | Quantity: " << shopitems[i].quantity << " | Power: " << shopitems[i].power << std::endl;
     }
 }
-void additem(std::vector<std::string>& items) {
+void saveitem(std::vector<Item>& items) {
+    std::ofstream file("items.txt");
+    for(const Item& item : items) {
+        file << item.name << "|" << item.power << "|" << item.consumable << std::endl;
+    }
+}
+std::vector<Item> loaditem() {
+    std::vector<Item> items;
+    std::ifstream file("items.txt");
+    std::string line;
+
+    while(getline(file, line)) {
+        Item item;
+        size_t p1 = line.find("|");
+        size_t p2 = line.find("|", p1 + 1);
+        size_t p3 = line.find("|", p2 + 1);
+        if(p1 != std::string::npos && p2 != std::string::npos && p3 != std::string::npos) {
+            item.name = line.substr(0, p1);
+            item.quantity = stoi(line.substr(p1 + 1, p2 - p1 - 1));
+            item.power = stoi(line.substr(p2 + 1, p3 - p2 - 1));
+            item.consumable = line.substr(p3 + 2) == "1";
+        }
+        items.push_back(item);
+    }
+    return items;
+}
+void additem(std::vector<Item>& items, std::vector<Item>& shopitems) {
     std::string input;
 
     while(true) {
@@ -49,8 +82,10 @@ void additem(std::vector<std::string>& items) {
         std::cin >> input;
         if(isNumber(input)) {
             int iinput = stoi(input);
+            int i = iinput - 1;
             if(iinput >= 1 && iinput <= (int)shopitems.size()) {
-                items.push_back(shopitems[iinput - 1].name);
+                items.push_back(shopitems[i]);
+                saveitem(items);
                 std::cout << "Item added." << std::endl;
                 break;
             }else {
@@ -63,10 +98,73 @@ void additem(std::vector<std::string>& items) {
         }
     }
 }
+void saveshop(std::vector<Item>& shopitems) {
+    std::ofstream file("shop_items.txt");
+    for(const Item& shop_item : shop_items) {
+        file << shop_item.name << "|" << shop_item.quantity << "|" << shop_item.power << "|" << std::endl;
+    }
+}
+std::vector<Item> loadshop() {
+    std::vector<Item> shopitems;
+    std::ifstream file("shop_items.txt");
+    std::string line;
+
+    while(getline(file, line)) {
+        Item shopitem;
+        size_t p1 = line.find("|");
+        size_t p2 = line.find("|", p1 + 1);
+        size_t p3 = line.find("|", p2 + 1);
+        if(p1 != std::string::npos && p2 != std::string::npos && p3 != std::string::npos) {
+            shopitem.name = line.substr(0, p1);
+            shopitem.quantity = stoi(line.substr(p1 + 1, p2 - p1 - 1));
+            shopitem.power = stoi(line.substr(p2 + 1, p3 - p2 - 1));
+            shopitem.consumable = line.substr(p3 + 2) == "1";
+        }
+    }
+    return shopitems;
+}
+void useitem(std::vector<Item>& items) {
+    if(items.empty()) {
+        std::cout << "You do not have items.\n**********************" << std::endl;
+    }else {
+        showitem(items);
+        std::string input;
+        while(true) {
+            std::cout << "----------------\nChoose the item you want to use.\n>> ";
+            std::cin >> input;
+            if(isNumber(input)) {
+                int iinput = stoi(input);
+                int index = iinput - 1;
+                if(index >= 0 && index < items.size()) {
+                    if(items[index].power == 0) {
+                        std::cout << "This item has used." << std::endl;
+                        break;
+                    }else {
+                        items[index].power -= 1;
+                        saveitem(items);
+                        std::cout << "Item was used." << std::endl;
+                        break;
+                    }
+                }else {
+                    std::cout << "Enter the valid number." << std::endl;
+                    continue;
+                }
+            }else {
+                std::cout << "Enter the number please." << std::endl;
+                continue;
+            }
+        }
+    }
+    
+    
+}
+void removeitem(std::vector<Item>& items) {
+
+}
 
 int main() {
     std::cout << "===============\n   INVENTORY\n===============" << std::endl;
-    std::vector<std::string> items;
+    std::vector<Item> items = loaditem();
     std::string input;
     while(true) {
         Menu();
@@ -82,13 +180,13 @@ int main() {
                 }
             }else
             if(iinput == 2) {
-                additem(items);
+                additem(items, shopitems);
             }else
             if(iinput == 3) {
 
             }else
             if(iinput == 4) {
-
+                useitem(items);
             }else
             if(iinput == 5) {
                 break;
