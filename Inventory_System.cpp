@@ -21,12 +21,14 @@ bool isNumber(const std::string& s) {
     return true;
 }
 void Menu() {
+    std::cout << "--------------" << std::endl;
     std::vector<std::string> menu = {"Show item", "Item shop", "Remove item", "Use item", "Exit"};
     std::vector<int> nums = {1, 2, 3, 4, 5};
 
     for(size_t i = 0; i < nums.size(); ++i) {
         std::cout << nums[i] << ". " << menu[i] << std::endl;
     }
+    std::cout << "--------------" << std::endl;
 }
 void showitem(const std::vector<Item>& items) {
     std::cout << "-*-*-*-*-*-*-*-" << std::endl;
@@ -77,21 +79,42 @@ void additem(std::vector<Item>& items, std::vector<Item>& shopitems) {
 
     while(true) {
         itemshop();
-        std::cout << "What item do you want to add?" << std::endl;
+        std::cout << "What item do you want to add? (Press 'x' to exit)" << std::endl;
         std::cout << ">> ";
         std::cin >> input;
         if(isNumber(input)) {
             int iinput = stoi(input);
             int i = iinput - 1;
             if(iinput >= 1 && iinput <= (int)shopitems.size()) {
-                items.push_back(shopitems[i]);
-                saveitem(items);
-                std::cout << "Item added." << std::endl;
-                break;
+                if(shopitems[i].quantity <= 0) {
+                    std::cout << "This item is out of stock." << std::endl;
+                    continue;
+                }else {
+                    shopitems[i].quantity -= 1;
+                    bool found = false;
+                    for(Item& item : items) {
+                        if(item.name == shopitems[i].name) {
+                            item.quantity += 1;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        Item newitem = shopitems[i];
+                        newitem.quantity = 1;
+                        items.push_back(newitem);  
+                    }
+                    saveitem(items);
+                    std::cout << "Item added." << std::endl;
+                    break;
+                }
             }else {
                 std::cout << "Enter the valid number." << std::endl;
                 continue;
             }
+        }else
+        if(input == "x" || input == "X") {
+            break;
         }else {
             std::cout << "Enter the number please." << std::endl;
             continue;
@@ -100,7 +123,7 @@ void additem(std::vector<Item>& items, std::vector<Item>& shopitems) {
 }
 void saveshop(std::vector<Item>& shopitems) {
     std::ofstream file("shop_items.txt");
-    for(const Item& shop_item : shop_items) {
+    for(const Item& shop_item : shopitems) {
         file << shop_item.name << "|" << shop_item.quantity << "|" << shop_item.power << "|" << std::endl;
     }
 }
@@ -125,12 +148,12 @@ std::vector<Item> loadshop() {
 }
 void useitem(std::vector<Item>& items) {
     if(items.empty()) {
-        std::cout << "You do not have items.\n**********************" << std::endl;
+        std::cout << "You do not have items." << std::endl;
     }else {
         showitem(items);
         std::string input;
         while(true) {
-            std::cout << "----------------\nChoose the item you want to use.\n>> ";
+            std::cout << "Choose the item you want to use (Press x to exit).\n>> ";
             std::cin >> input;
             if(isNumber(input)) {
                 int iinput = stoi(input);
@@ -149,6 +172,9 @@ void useitem(std::vector<Item>& items) {
                     std::cout << "Enter the valid number." << std::endl;
                     continue;
                 }
+            }else
+            if(input == "x" || input == "X") {
+                break;
             }else {
                 std::cout << "Enter the number please." << std::endl;
                 continue;
@@ -159,7 +185,39 @@ void useitem(std::vector<Item>& items) {
     
 }
 void removeitem(std::vector<Item>& items) {
-
+    if(items.empty()) {
+        std::cout << "You do not have items to remove" << std::endl;
+    }else {
+        std::string input;
+        while(true) {
+            showitem(items);
+            std::cout << "What item do you want to remove? (Press 'x' to exit)\n>> ";
+            std::cin >> input;
+            if(isNumber(input)) {
+                int iinput = stoi(input);
+                int index = iinput - 1;
+                if(iinput >= 1 && iinput <= (int)items.size()) {
+                    items[index].quantity -= 1;
+                    if(items[index].quantity <= 0) {
+                        items.erase(items.begin() + index);
+                    }else {
+                        saveitem(items); 
+                    }
+                    std::cout << "Item removed" << std::endl;
+                    break;
+                }else {
+                    std::cout << "Enter the valid number." << std::endl;
+                    continue;
+                }
+            }else
+            if(input == "x" || input == "X") {
+                break;
+            }else {
+                std::cout << "Enter the number please." << std::endl;
+                continue;
+            }
+        }
+    }
 }
 
 int main() {
@@ -183,7 +241,7 @@ int main() {
                 additem(items, shopitems);
             }else
             if(iinput == 3) {
-
+                removeitem(items);
             }else
             if(iinput == 4) {
                 useitem(items);
