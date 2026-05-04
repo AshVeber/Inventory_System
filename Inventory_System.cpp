@@ -1,19 +1,16 @@
 #include "inventorySystem.h"
 #include <iostream>
-#include <string>
-#include <vector>
-#include <fstream>
 
 bool isNumber(const std::string& s) {
     if(s.empty()) {
-        return false;
+        return 0;
     }
     for(char const &c : s) {
         if(!(isdigit(c))) {
-            return false;
+            return 0;
         }
     }
-    return true;
+    return 1;
 }
 void Menu() {
     std::cout << "--------------" << std::endl;
@@ -46,7 +43,7 @@ void itemshop() {
 void saveitem(std::vector<Item>& items) {
     std::ofstream file("items.txt");
     for(const Item& item : items) {
-        file << item.name << "|" << item.power << "|" << item.consumable << std::endl;
+        file << item.name << "|" << item.power << "|" << item.quantity << "|" << item.consumable << std::endl;
     }
 }
 std::vector<Item> loaditem() {
