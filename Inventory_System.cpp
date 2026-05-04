@@ -1,14 +1,9 @@
+#include "inventorySystem.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
 
-struct Item {
-    std::string name;
-    int quantity;
-    int power;
-    bool consumable;
-};
 bool isNumber(const std::string& s) {
     if(s.empty()) {
         return false;
