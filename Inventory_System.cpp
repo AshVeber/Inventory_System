@@ -1,17 +1,7 @@
 #include "inventorySystem.h"
 #include <iostream>
+#include <fstream>
 
-bool isNumber(const std::string& s) {
-    if(s.empty()) {
-        return 0;
-    }
-    for(char const &c : s) {
-        if(!(isdigit(c))) {
-            return 0;
-        }
-    }
-    return 1;
-}
 void Menu() {
     std::cout << "--------------" << std::endl;
     std::vector<std::string> menu = {"Show item", "Item shop", "Remove item", "Use item", "Exit"};
@@ -68,7 +58,6 @@ std::vector<Item> loaditem() {
 }
 void additem(std::vector<Item>& items, std::vector<Item>& shopitems) {
     std::string input;
-
     while(true) {
         itemshop();
         std::cout << "What item do you want to add? (Press 'x' to exit)" << std::endl;
@@ -229,8 +218,7 @@ void removeitem(std::vector<Item>& items) {
         }
     }
 }
-
-int main() {
+void runinventory() {
     std::cout << "===============\n   INVENTORY\n===============" << std::endl;
     std::vector<Item> items = loaditem();
     std::string input;
@@ -271,8 +259,9 @@ int main() {
                 continue;
             }
         }
-
     }
-    
+}
+int main() {
+    runinventory();
     return 0;
 }
